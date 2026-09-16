@@ -636,12 +636,14 @@ class PrivescScanner:
                      'session hijack, or DCOM "Interactive User" abuse.')
 
 
-def format_findings(address, findings, os_line='', hf_count=0):
+def format_findings(address, findings, os_line='', hf_count=0, hf_list=None):
     lines = []
     lines.append(f'\n{BOLD}{"="*60}{RESET}')
     lines.append(f'{BOLD}  DCOM Scan — {address}{RESET}')
     if os_line:
         lines.append(f'  {os_line} | {hf_count} hotfixes')
+    if hf_list:
+        lines.append(f'  Installed: {", ".join(hf_list)}')
     lines.append(f'{BOLD}{"="*60}{RESET}\n')
 
     crits = [f for f in findings if f.severity == FINDING_CRITICAL]
@@ -803,6 +805,7 @@ def main():
                 if kb_set:
                     hotfixes = [{'HotFixID': kb, 'InstalledOn': ''} for kb in sorted(kb_set)]
             hf_count = len(hotfixes) if hotfixes else 0
+            hf_list = sorted(set(h['HotFixID'] for h in hotfixes)) if hotfixes else []
             if hotfixes:
                 dated = [h for h in hotfixes if h.get('InstalledOn')]
                 if dated:
@@ -831,7 +834,7 @@ def main():
             all_results[target_host] = findings
 
             if not args.json:
-                output = format_findings(target_host, findings, os_line, hf_count)
+                output = format_findings(target_host, findings, os_line, hf_count, hf_list)
                 print(output)
                 file_output.append(ANSI_RE.sub('', output))
 

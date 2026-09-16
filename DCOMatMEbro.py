@@ -790,17 +790,28 @@ def main():
                 print(f'[*] OS:       {caption} | Version {ver} | Build {build}',
                       file=sys.stderr)
 
-            hotfixes = conn.wql("SELECT HotFixID FROM Win32_QuickFixEngineering")
+            hotfixes = conn.wql("SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering")
+            if not hotfixes:
+                pkgs = conn.reg_enum_keys(HKLM, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages')
+                kb_set = set()
+                for p in pkgs:
+                    if 'Package_for_KB' in p:
+                        kb = p.split('~')[0].replace('Package_for_', '')
+                        kb_set.add(kb)
+                if kb_set:
+                    hotfixes = [{'HotFixID': kb, 'InstalledOn': ''} for kb in sorted(kb_set)]
             hf_count = len(hotfixes) if hotfixes else 0
             if hotfixes:
-                latest = conn.wql(
-                    "SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering")
-                latest.sort(key=lambda x: x.get('InstalledOn', ''), reverse=True)
-                last = latest[0] if latest else {}
-                print(f'[*] Hotfixes: {hf_count} (latest: {last.get("HotFixID", "?")} '
-                      f'on {last.get("InstalledOn", "?")})', file=sys.stderr)
+                dated = [h for h in hotfixes if h.get('InstalledOn')]
+                if dated:
+                    dated.sort(key=lambda x: x['InstalledOn'], reverse=True)
+                    last = dated[0]
+                    print(f'[*] Hotfixes: {hf_count} (latest: {last.get("HotFixID", "?")} '
+                          f'on {last.get("InstalledOn", "?")})', file=sys.stderr)
+                else:
+                    print(f'[*] Hotfixes: {hf_count} (via registry)', file=sys.stderr)
             else:
-                print(f'[*] Hotfixes: none via WMI', file=sys.stderr)
+                print(f'[*] Hotfixes: none detected', file=sys.stderr)
         except Exception as e:
             logger.debug(f'OS info query failed: {e}')
 

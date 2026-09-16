@@ -788,8 +788,10 @@ def main():
                 caption = (oi.get('Caption') or '?').strip()
                 build = oi.get('BuildNumber', '?')
                 ver = oi.get('Version', '?')
-                os_line = f'{caption} (Build {build})'
-                print(f'[*] OS:       {caption} | Version {ver} | Build {build}',
+                ubr = conn.reg_get_dword(HKLM, r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'UBR')
+                build_str = f'{build}.{ubr}' if ubr is not None else build
+                os_line = f'{caption} (Build {build_str})'
+                print(f'[*] OS:       {caption} | Version {ver} | Build {build_str}',
                       file=sys.stderr)
 
             hotfixes = conn.wql("SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering")

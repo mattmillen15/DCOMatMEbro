@@ -25,9 +25,6 @@ Session-less DCOM code execution via WMI Win32_Process.Create with HTTP callback
 python3 dcom_exec.py ecorp.local/dcomuser:'DCOMPwn2026!'@192.168.15.40 'whoami /all'
 ```
 
-### wmi_nullbyte_poc.py
-PoC for CWE-158 null-byte truncation in WMI namespace paths. Server-side truncation confirmed in wmiprvse.exe. Not an ACL bypass.
-
 ## Requirements
 - Python 3
 - impacket

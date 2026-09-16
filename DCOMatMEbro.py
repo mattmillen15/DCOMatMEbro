@@ -794,10 +794,12 @@ def main():
             if not hotfixes:
                 pkgs = conn.reg_enum_keys(HKLM, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages')
                 kb_set = set()
+                import re
+                kb_re = re.compile(r'Package_(?:\d+_)?for_(KB\d+)')
                 for p in pkgs:
-                    if 'Package_for_KB' in p:
-                        kb = p.split('~')[0].replace('Package_for_', '')
-                        kb_set.add(kb)
+                    m = kb_re.match(p)
+                    if m:
+                        kb_set.add(m.group(1))
                 if kb_set:
                     hotfixes = [{'HotFixID': kb, 'InstalledOn': ''} for kb in sorted(kb_set)]
             hf_count = len(hotfixes) if hotfixes else 0
